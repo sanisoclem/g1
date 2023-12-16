@@ -5,4 +5,5 @@ edition = "2021"
 
 [dependencies]
 bevy = { workspace = true }
+rodio = "0.17"
 utils = { path = "../utils", version = "0.1.0" }
