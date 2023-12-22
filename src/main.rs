@@ -20,6 +20,7 @@ fn main() {
     // .insert_resource(AssetMetaCheck::Never) // might need this wasm hosting (itch.io returns 403s
     // and loader panics)
     .add_plugins((DefaultPlugins, TemporalAntiAliasPlugin, SimulationPlugin))
+    .init_asset_loader::<animation::_AnimationControllerLoader>()
     .add_systems(
       Startup,
       (

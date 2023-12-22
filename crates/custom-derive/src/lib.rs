@@ -8,11 +8,15 @@ pub fn ron_asset_derive(input: TokenStream) -> TokenStream {
   let ast = syn::parse(input).unwrap();
   let parsed = Receiver::from_derive_input(&ast).unwrap();
   let name = &parsed.ident;
+  let concatenated = format!("_{}Loader", name);
+  let loader_name = syn::Ident::new(&concatenated, name.span());
   let assets = &parsed.assets;
   let extension = &parsed.extension;
 
   let gen = quote! {
-    impl AssetLoader for #name
+    #[derive(Default)]
+    pub struct #loader_name;
+    impl AssetLoader for #loader_name
     {
       type Asset = #name;
       type Settings = ();

@@ -1,10 +1,12 @@
-use std::{collections::HashMap, time::Duration};
+use serde::Deserialize;
 use serde_ron::de::from_bytes;
+use std::{collections::HashMap, marker::PhantomData, time::Duration};
 use thiserror::Error;
 
 use bevy::{
-  asset::{AssetLoader, LoadContext, io::Reader, AsyncReadExt},
-  prelude::*, utils::BoxedFuture,
+  asset::{io::Reader, AssetLoader, AsyncReadExt, LoadContext},
+  prelude::*,
+  utils::BoxedFuture,
 };
 
 #[derive(Component)]
@@ -13,13 +15,15 @@ pub struct Animator {
   pub parameters: HashMap<&'static str, f32>,
 }
 
-#[derive(serde::Deserialize, bevy::asset::Asset, bevy::reflect::TypePath, custom_derive::RonAsset)]
+#[derive(
+  serde::Deserialize, bevy::asset::Asset, bevy::reflect::TypePath, custom_derive::RonAsset,
+)]
 #[ron_asset(extension = "anim.ron", assets = AnimationControllerAssets)]
 pub enum AnimationController {
   NoobAnimationController(NoobAnimationController),
 }
 pub struct AnimationControllerAssets {
-  animations: HashMap<NoobNodeId, Handle<AnimationClip>>
+  animations: HashMap<NoobNodeId, Handle<AnimationClip>>,
 }
 
 #[derive(PartialEq, Hash, Eq, Debug, serde::Deserialize)]
@@ -55,9 +59,6 @@ pub enum NoobAnimationTransitionCondition {
   Trigger(String),
 }
 
-#[derive(Default)]
-pub struct AnimationControllerLoader;
-
 /// Possible errors that can be produced by [`CustomAssetLoader`]
 #[non_exhaustive]
 #[derive(Debug, Error)]
@@ -74,6 +75,7 @@ pub trait RonAsset {
   type NestedAssets;
 
   fn construct_nested_assets<'a>(&self, load_context: &'a mut LoadContext) -> Self::NestedAssets;
+  fn extensions() -> &'static [&'static str];
 }
 
 impl RonAsset for AnimationController {
@@ -81,30 +83,41 @@ impl RonAsset for AnimationController {
   fn construct_nested_assets<'a>(&self, load_context: &'a mut LoadContext) -> Self::NestedAssets {
     unimplemented!()
   }
+  fn extensions() -> &'static [&'static str] {
+    &["anim.ron"]
+  }
 }
 
-// impl AssetLoader for AnimationController
-// {
-//   type Asset = AnimationController;
-//   type Settings = ();
-//   type Error = RonAssetLoaderError;
-//   fn load<'a>(
-//     &'a self,
-//     reader: &'a mut Reader,
-//     _settings: &'a (),
-//     ctx: &'a mut LoadContext,
-//   ) -> BoxedFuture<'a, Result<Self::Asset, Self::Error>> {
-//     Box::pin(async move {
-//       let mut bytes = Vec::new();
-//       reader.read_to_end(&mut bytes).await?;
-//       let asset = from_bytes::<AnimationController>(&bytes)?;
-//       asset.construct_nested_assets(ctx);
+#[derive(Default)]
+pub struct RonAssetLoader<T> {
+  phantom: PhantomData<T>,
+}
 
-//       Ok(asset)
-//     })
-//   }
+impl<T> AssetLoader for RonAssetLoader<T>
+where
+  T: for<'a> Deserialize<'a> + RonAsset + Asset + Send + Sync + 'static,
+{
+  type Asset = T;
+  type Settings = ();
+  type Error = RonAssetLoaderError;
 
-//   fn extensions(&self) -> &[&str] {
-//     &["custom"]
-//   }
-// }
+  fn load<'a>(
+    &'a self,
+    reader: &'a mut Reader,
+    _settings: &'a (),
+    ctx: &'a mut LoadContext,
+  ) -> BoxedFuture<'a, Result<Self::Asset, Self::Error>> {
+    Box::pin(async move {
+      let mut bytes = Vec::new();
+      reader.read_to_end(&mut bytes).await?;
+      let asset = from_bytes::<T>(&bytes)?;
+      asset.construct_nested_assets(ctx);
+
+      Ok(asset)
+    })
+  }
+
+  fn extensions(&self) -> &[&str] {
+    T::extensions()
+  }
+}
