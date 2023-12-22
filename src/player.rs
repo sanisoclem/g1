@@ -1,10 +1,50 @@
-use bevy::prelude::*;
+use std::sync::Arc;
+
+use bevy::{prelude::*, utils::HashMap};
 
 #[derive(Component)]
 pub struct Player;
 
+// TODO: rework this once we have animation blending
+#[derive(Component)]
+pub struct HumaniodAnimations {
+  pub idle_animation: Handle<AnimationClip>,
+  pub walk_animation: Handle<AnimationClip>,
+  pub run_animation: Handle<AnimationClip>,
+}
+
+#[derive(PartialEq, Hash, Debug)]
+pub struct AnimationId(Arc<&'static str>);
+
 #[derive(Resource)]
-pub struct Animations(Vec<Handle<AnimationClip>>);
+pub struct Animations {
+  pub library: HashMap<AnimationId, Handle<AnimationClip>>,
+}
+
+
+
+pub fn setup_player(
+  mut cmd: Commands,
+  asset_server: Res<AssetServer>,
+  mut materials: ResMut<Assets<StandardMaterial>>,
+  mut meshes: ResMut<Assets<Mesh>>,
+) {
+  cmd
+    .spawn(SceneBundle {
+      scene: asset_server.load("char.glb#Scene0"),
+      ..default()
+    })
+    .insert(Player);
+
+  cmd.insert_resource(Animations(vec![asset_server.load("char.glb#Animation0")]));
+
+  // plane
+  cmd.spawn(PbrBundle {
+    mesh: meshes.add(shape::Plane::from_size(500.0).into()),
+    material: materials.add(Color::rgb(0.3, 0.5, 0.3).into()),
+    ..default()
+  });
+}
 
 pub fn update_player(
   mut qry: Query<&mut Transform, With<Player>>,
@@ -61,27 +101,4 @@ pub fn play_animations(
       player.play(handle).repeat();
     }
   }
-}
-
-pub fn setup_player(
-  mut cmd: Commands,
-  asset_server: Res<AssetServer>,
-  mut materials: ResMut<Assets<StandardMaterial>>,
-  mut meshes: ResMut<Assets<Mesh>>,
-) {
-  cmd
-    .spawn(SceneBundle {
-      scene: asset_server.load("char.glb#Scene0"),
-      ..default()
-    })
-    .insert(Player);
-
-  cmd.insert_resource(Animations(vec![asset_server.load("char.glb#Animation0")]));
-
-  // plane
-  cmd.spawn(PbrBundle {
-    mesh: meshes.add(shape::Plane::from_size(500.0).into()),
-    material: materials.add(Color::rgb(0.3, 0.5, 0.3).into()),
-    ..default()
-  });
 }

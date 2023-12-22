@@ -11,15 +11,16 @@ simulation = { path = "crates/simulation", version = "0.1.0" }
 render = { path = "crates/render", version = "0.1.0" }
 input = { path = "crates/input", version = "0.1.0" }
 audio = { path = "crates/audio", version = "0.1.0" }
-
-
+bevy_common_assets = { version = "0.8", features = ["ron"] }
+serde = "1.0"
+bevy_asset_loader = "0.18.0"
 
 
 [workspace]
 members = ["crates/*"]
 
 [workspace.dependencies]
-bevy = { version = "0.12"}
+bevy = { version = "0.12" }
 
 [features]
 hotreload = ["bevy/file_watcher"]
