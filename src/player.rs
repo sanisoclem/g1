@@ -21,8 +21,6 @@ pub struct Animations {
   pub library: HashMap<AnimationId, Handle<AnimationClip>>,
 }
 
-
-
 pub fn setup_player(
   mut cmd: Commands,
   asset_server: Res<AssetServer>,
@@ -36,7 +34,7 @@ pub fn setup_player(
     })
     .insert(Player);
 
-  cmd.insert_resource(Animations(vec![asset_server.load("char.glb#Animation0")]));
+  // cmd.insert_resource(Animations(vec![asset_server.load("char.glb#Animation0")]));
 
   // plane
   cmd.spawn(PbrBundle {
@@ -95,10 +93,10 @@ pub fn play_animations(
   animations: Res<Animations>,
   mut players: Query<&mut AnimationPlayer, Added<AnimationPlayer>>,
 ) {
-  for mut player in &mut players {
-    let handle = animations.0[0].clone();
-    if !player.is_playing_clip(&handle) {
-      player.play(handle).repeat();
-    }
-  }
+  // for mut player in &mut players {
+  //   let handle = animations.0[0].clone();
+  //   if !player.is_playing_clip(&handle) {
+  //     player.play(handle).repeat();
+  //   }
+  // }
 }
