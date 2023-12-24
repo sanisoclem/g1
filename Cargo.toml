@@ -1,25 +1,27 @@
 [package]
-name = "bevy-jam-4"
+name = "g1"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
 bevy = { workspace = true }
 bevy_egui = { version = "0.24", optional = true }
+custom_derive = { path = "crates/custom-derive", version = "0.1.0" }
 utils = { path = "crates/utils", version = "0.1.0" }
 simulation = { path = "crates/simulation", version = "0.1.0" }
 render = { path = "crates/render", version = "0.1.0" }
 input = { path = "crates/input", version = "0.1.0" }
 audio = { path = "crates/audio", version = "0.1.0" }
-
-
-
+assets = { path = "crates/assets", version = "0.1.0" }
+serde = { version = "1", features = ["derive", "rc"] }
+serde_ron = { version = "0.8", package = "ron" }
+thiserror= "*"
 
 [workspace]
 members = ["crates/*"]
 
 [workspace.dependencies]
-bevy = { version = "0.12"}
+bevy = { version = "0.12" }
 
 [features]
 hotreload = ["bevy/file_watcher"]
