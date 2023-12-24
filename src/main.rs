@@ -1,9 +1,10 @@
-use std::ops::Mul;
-
+use animation::AnimationController;
+use assets::RonAssetApp;
 use bevy::{core_pipeline::experimental::taa::TemporalAntiAliasPlugin, prelude::*};
 
 #[cfg(feature = "debug")]
 use bevy_egui::EguiPlugin;
+
 use player::Player;
 use simulation::SimulationPlugin;
 use utils::lerp;
@@ -20,7 +21,7 @@ fn main() {
     // .insert_resource(AssetMetaCheck::Never) // might need this wasm hosting (itch.io returns 403s
     // and loader panics)
     .add_plugins((DefaultPlugins, TemporalAntiAliasPlugin, SimulationPlugin))
-    .init_asset_loader::<animation::_AnimationControllerLoader>()
+    .register_ron_asset::<AnimationController>()
     .add_systems(
       Startup,
       (

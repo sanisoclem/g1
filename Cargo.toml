@@ -12,7 +12,8 @@ simulation = { path = "crates/simulation", version = "0.1.0" }
 render = { path = "crates/render", version = "0.1.0" }
 input = { path = "crates/input", version = "0.1.0" }
 audio = { path = "crates/audio", version = "0.1.0" }
-serde = { version = "1", features = ["derive"] }
+assets = { path = "crates/assets", version = "0.1.0" }
+serde = { version = "1", features = ["derive", "rc"] }
 serde_ron = { version = "0.8", package = "ron" }
 thiserror= "*"
 

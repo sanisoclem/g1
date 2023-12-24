@@ -1,0 +1,37 @@
+BasicAnimationController(
+  nodes:  {
+    "idle": (
+      animation:"test_player.lib#Animation0",
+      speed: 1.0
+    ),
+    "walk": (
+      animation:"test_player.lib#Animation1",
+      speed: 1.0
+    ),
+    "run": (
+      animation:"test_player.lib#Animation2",
+      speed: 1.0
+    ),
+  },
+  edges: [
+    (
+      from: "idle"
+      to: "walk",
+      transition_duration_seconds: 0.5,
+      enabled: true,
+      conditions: [
+        GreaterThan("velocity", 0.5)
+      ]
+    ),
+    (
+      from: "walk"
+      to: "idle",
+      transition_duration_seconds: 0.5,
+      enabled: true,
+      conditions: [
+        LessThan("velocity", 0.5)
+      ]
+    ),
+  ],
+  default_node: "idle"
+)

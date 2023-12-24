@@ -225,6 +225,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "assets"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "ron",
+ "serde",
+ "thiserror",
+ "utils",
+]
+
+[[package]]
 name = "async-broadcast"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1889,6 +1900,7 @@ dependencies = [
 name = "g1"
 version = "0.1.0"
 dependencies = [
+ "assets",
  "audio",
  "bevy",
  "bevy_egui",
