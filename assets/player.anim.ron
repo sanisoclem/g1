@@ -1,22 +1,22 @@
 BasicAnimationController(
   nodes:  {
-    "idle": (
-      animation:"test_player.lib#Animation0",
+    ("idle"): (
+      animation:"test_player.glb#Animation0",
       speed: 1.0
     ),
-    "walk": (
-      animation:"test_player.lib#Animation1",
+    ("walk"): (
+      animation:"test_player.glb#Animation1",
       speed: 1.0
     ),
-    "run": (
-      animation:"test_player.lib#Animation2",
+    ("run"): (
+      animation:"test_player.glb#Animation2",
       speed: 1.0
     ),
   },
   edges: [
     (
-      from: "idle"
-      to: "walk",
+      from: Some(("idle")),
+      to: ("walk"),
       transition_duration_seconds: 0.5,
       enabled: true,
       conditions: [
@@ -24,8 +24,8 @@ BasicAnimationController(
       ]
     ),
     (
-      from: "walk"
-      to: "idle",
+      from: Some(("walk")),
+      to: ("idle"),
       transition_duration_seconds: 0.5,
       enabled: true,
       conditions: [
@@ -33,5 +33,5 @@ BasicAnimationController(
       ]
     ),
   ],
-  default_node: "idle"
+  default_node: ("idle")
 )

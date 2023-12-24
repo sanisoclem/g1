@@ -1,25 +1,9 @@
-use std::sync::Arc;
+use bevy::prelude::*;
 
-use bevy::{prelude::*, utils::HashMap};
+use crate::animation::Animator;
 
 #[derive(Component)]
 pub struct Player;
-
-// TODO: rework this once we have animation blending
-#[derive(Component)]
-pub struct HumaniodAnimations {
-  pub idle_animation: Handle<AnimationClip>,
-  pub walk_animation: Handle<AnimationClip>,
-  pub run_animation: Handle<AnimationClip>,
-}
-
-#[derive(PartialEq, Hash, Debug)]
-pub struct AnimationId(Arc<&'static str>);
-
-#[derive(Resource)]
-pub struct Animations {
-  pub library: HashMap<AnimationId, Handle<AnimationClip>>,
-}
 
 pub fn setup_player(
   mut cmd: Commands,
@@ -32,9 +16,11 @@ pub fn setup_player(
       scene: asset_server.load("char.glb#Scene0"),
       ..default()
     })
-    .insert(Player);
-
-  // cmd.insert_resource(Animations(vec![asset_server.load("char.glb#Animation0")]));
+    .insert(Player)
+    .insert(Animator {
+      controller: asset_server.load("player.anim.ron"),
+      parameters: vec![("velocity", 0.0)].into_iter().collect(),
+    });
 
   // plane
   cmd.spawn(PbrBundle {
@@ -45,12 +31,12 @@ pub fn setup_player(
 }
 
 pub fn update_player(
-  mut qry: Query<&mut Transform, With<Player>>,
+  mut qry: Query<(&mut Transform, &mut Animator), With<Player>>,
   mut gizmos: Gizmos,
   keyboard_input: Res<Input<KeyCode>>,
   time: Res<Time>,
 ) {
-  let Ok(mut trans) = qry.get_single_mut() else {
+  let Ok((mut trans, mut animator)) = qry.get_single_mut() else {
     return;
   };
 
@@ -78,6 +64,12 @@ pub fn update_player(
 
   gizmos.line(Vec3::ZERO, dir * 100., Color::PURPLE);
 
+  if dir == Vec3::ZERO {
+    animator.set_parameter("velocity", 0.0);
+    return;
+  }
+
+  animator.set_parameter("velocity", 1.0);
   let inc = dir * 5. * time.delta_seconds();
   let plus1s = Vec3::new(
     trans.translation.x - inc.x,
@@ -87,16 +79,4 @@ pub fn update_player(
   trans.look_at(plus1s, Vec3::Y);
   trans.translation.x += inc.x;
   trans.translation.z += inc.z;
-}
-
-pub fn play_animations(
-  animations: Res<Animations>,
-  mut players: Query<&mut AnimationPlayer, Added<AnimationPlayer>>,
-) {
-  // for mut player in &mut players {
-  //   let handle = animations.0[0].clone();
-  //   if !player.is_playing_clip(&handle) {
-  //     player.play(handle).repeat();
-  //   }
-  // }
 }

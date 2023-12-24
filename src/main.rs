@@ -5,9 +5,7 @@ use bevy::{core_pipeline::experimental::taa::TemporalAntiAliasPlugin, prelude::*
 #[cfg(feature = "debug")]
 use bevy_egui::EguiPlugin;
 
-use player::Player;
 use simulation::SimulationPlugin;
-use utils::lerp;
 
 mod animation;
 mod camera;
@@ -33,7 +31,7 @@ fn main() {
     .add_systems(
       Update,
       (
-        player::play_animations,
+        animation::play_animations,
         player::update_player,
         camera::update_camera,
       ),

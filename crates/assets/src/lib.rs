@@ -20,7 +20,9 @@ impl RonAssetApp for App {
   where
     A: for<'a> Deserialize<'a> + RonAsset + Asset + Send + Sync + 'static,
   {
-    self.init_asset_loader::<RonAssetLoader<A>>()
+    self
+      .init_asset::<A>()
+      .init_asset_loader::<RonAssetLoader<A>>()
   }
 }
 

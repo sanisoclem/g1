@@ -1,5 +1,3 @@
-use std::ops::Mul;
-
 use bevy::{
   core_pipeline::{bloom::BloomSettings, tonemapping::Tonemapping, Skybox},
   pbr::ScreenSpaceAmbientOcclusionBundle,
