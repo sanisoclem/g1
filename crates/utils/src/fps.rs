@@ -130,18 +130,17 @@ fn extract_fps(diagnostics: &DiagnosticsStore) -> Option<f64> {
 
 fn spawn_text(mut commands: Commands) {
   commands
-    .spawn((
-      NodeBundle {
-        style: Style {
-          align_items: AlignItems::End,
-          justify_content: JustifyContent::Center,
-          width: Val::Percent(100.0),
-          height: Val::Percent(100.0),
-          ..default()
-        },
+    .spawn((NodeBundle {
+      style: Style {
+        align_items: AlignItems::End,
+        justify_content: JustifyContent::Center,
+        width: Val::Percent(100.0),
+        height: Val::Percent(100.0),
         ..default()
       },
-    ))
+      ..default()
+    },))
+    .insert(Name::new("FPS Counter"))
     .with_children(|parent| {
       parent
         .spawn(TextBundle {

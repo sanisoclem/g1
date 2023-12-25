@@ -1,13 +1,16 @@
 use assets::RonAsset;
 use serde::Deserialize;
-use std::{collections::HashMap, sync::Arc, time::Duration};
+use std::{collections::HashMap, ops::Deref, sync::Arc, time::Duration};
 
-use bevy::{asset::LoadContext, prelude::*};
+use bevy::{asset::LoadContext, prelude::*, scene::SceneInstance};
 
-#[derive(Component)]
+#[derive(Component, Default)]
 pub struct Animator {
   pub controller: Handle<AnimationController>,
   pub parameters: HashMap<&'static str, f32>,
+  pub rig_path: EntityPath,
+  pub rig_calculated: bool,
+  pub rig_target: Option<Entity>,
 }
 
 impl Animator {
@@ -158,20 +161,96 @@ impl RonAsset for AnimationController {
   }
 }
 
+pub fn find_rig_target(
+  mut qry: Query<(Entity, &mut Animator), (With<Children>, With<SceneInstance>)>,
+  children: Query<&Children>,
+  names: Query<&Name>,
+) {
+  for (e, mut animator) in qry.iter_mut() {
+    if animator.rig_calculated {
+      continue;
+    };
+    let mut cache = Vec::new();
+    animator.rig_target = entity_from_path2(e, &animator.rig_path, &children, &names, &mut cache);
+    animator.rig_calculated = true;
+  }
+}
+
 pub fn play_animations(
   mut controllers: ResMut<Assets<AnimationController>>,
-  mut qry: Query<(&Animator, &mut AnimationPlayer), Changed<Animator>>,
+  qry: Query<&Animator, Changed<Animator>>,
+  mut qry_player: Query<&mut AnimationPlayer>,
 ) {
-  for (animator, mut player) in qry.iter_mut() {
+  for animator in qry.iter() {
+    let Some(rig_target) = animator.rig_target else {
+      continue;
+    };
+    let Ok(mut player) = qry_player.get_mut(rig_target) else {
+      continue;
+    };
     let Some(controller) = controllers.get_mut(animator.controller.clone()) else {
       continue;
     };
+
     controller.update_animation(&animator.parameters, None);
     if let Some(anim) = controller.get_active_animation() {
       // TODO: get speed, transition time and repeat mode
       player.play_with_transition(anim, Duration::from_secs_f32(0.5));
+      player.set_repeat(bevy::animation::RepeatAnimation::Forever);
     } else {
       player.pause()
     }
   }
+}
+
+fn entity_from_path2(
+  root: Entity,
+  path: &EntityPath,
+  children: &Query<&Children>,
+  names: &Query<&Name>,
+  path_cache: &mut Vec<Option<Entity>>,
+) -> Option<Entity> {
+  // PERF: finding the target entity can be optimised
+  let mut current_entity = root;
+  path_cache.resize(path.parts.len(), None);
+
+  let parts = path.parts.iter().enumerate();
+
+  for (idx, part) in parts {
+    let mut found = false;
+    let Ok(children) = children.get(current_entity) else {
+      warn!(
+        "Cannot find rig target {:?}. no children found for {:?}",
+        path, current_entity
+      );
+      return None;
+    };
+    if let Some(cached) = path_cache[idx] {
+      if children.contains(&cached) {
+        if let Ok(name) = names.get(cached) {
+          if name == part {
+            current_entity = cached;
+            found = true;
+          }
+        }
+      }
+    }
+    if !found {
+      for child in children.deref() {
+        let name = names.get(*child).unwrap_or(part);
+
+        if name == part {
+          current_entity = *child;
+          path_cache[idx] = Some(*child);
+          found = true;
+          break;
+        }
+      }
+    }
+    if !found {
+      warn!("Entity not found for path {:?} on part {:?}", path, part);
+      return None;
+    }
+  }
+  Some(current_entity)
 }
