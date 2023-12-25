@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_scene_hook::{HookedSceneBundle, SceneHook};
 
 use crate::animation::Animator;
 
@@ -11,23 +12,27 @@ pub fn setup_player(
   mut materials: ResMut<Assets<StandardMaterial>>,
   mut meshes: ResMut<Assets<Mesh>>,
 ) {
+  let controller = asset_server.load("player.anim.ron");
   cmd
     .spawn(SceneBundle {
       scene: asset_server.load("char.glb#Scene0"),
       ..default()
     })
-    .insert(Player)
-    .insert(Animator {
-      controller: asset_server.load("player.anim.ron"),
-      parameters: vec![("velocity", 0.0)].into_iter().collect(),
-    });
-
-  // plane
-  cmd.spawn(PbrBundle {
-    mesh: meshes.add(shape::Plane::from_size(500.0).into()),
-    material: materials.add(Color::rgb(0.3, 0.5, 0.3).into()),
-    ..default()
-  });
+    .insert((
+      Name::new("Player"),
+      Player,
+      Animator {
+        controller: controller.clone(),
+        parameters: vec![("velocity", 0.0)].into_iter().collect(),
+        rig_path: EntityPath {
+          parts: vec![
+            Name::new("Unnamed"),
+            Name::new("Armature"),
+          ],
+        },
+        ..default()
+      },
+    ));
 }
 
 pub fn update_player(

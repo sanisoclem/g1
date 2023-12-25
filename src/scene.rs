@@ -10,7 +10,8 @@ pub fn setup_test_scene(
     mesh: meshes.add(shape::Plane::from_size(500.0).into()),
     material: materials.add(Color::rgb(0.3, 0.5, 0.3).into()),
     ..default()
-  });
+  })
+  .insert(Name::new("Floor"));
 
   cmd.spawn(PointLightBundle {
     point_light: PointLight {
