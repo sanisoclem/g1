@@ -176,6 +176,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "animation"
+version = "0.1.0"
+dependencies = [
+ "assets",
+ "bevy",
+ "serde",
+ "utils",
+]
+
+[[package]]
 name = "approx"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1948,6 +1958,7 @@ dependencies = [
 name = "g1"
 version = "0.1.0"
 dependencies = [
+ "animation",
  "assets",
  "audio",
  "bevy",

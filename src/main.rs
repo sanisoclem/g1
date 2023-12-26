@@ -1,10 +1,8 @@
-use animation::AnimationController;
-use assets::RonAssetApp;
-use bevy::{
-  core_pipeline::experimental::taa::TemporalAntiAliasPlugin,
-  input::common_conditions::input_toggle_active, prelude::*,
-};
+use animation::AnimationControllerPlugin;
+use bevy::{core_pipeline::experimental::taa::TemporalAntiAliasPlugin, prelude::*};
 
+#[cfg(feature = "debug")]
+use bevy::input::common_conditions::input_toggle_active;
 #[cfg(feature = "debug")]
 use bevy_egui::EguiPlugin;
 #[cfg(feature = "debug")]
@@ -13,7 +11,6 @@ use bevy_inspector_egui::DefaultInspectorConfigPlugin;
 use bevy_scene_hook::HookPlugin;
 use simulation::SimulationPlugin;
 
-mod animation;
 mod camera;
 #[cfg(feature = "debug")]
 mod debug;
@@ -31,8 +28,8 @@ fn main() {
       TemporalAntiAliasPlugin,
       SimulationPlugin,
       HookPlugin,
+      AnimationControllerPlugin,
     ))
-    .register_ron_asset::<AnimationController>()
     .add_systems(
       Startup,
       (
@@ -41,14 +38,7 @@ fn main() {
         camera::setup_camera,
       ),
     )
-    .add_systems(
-      Update,
-      (
-        (animation::find_rig_target, animation::play_animations).chain(),
-        player::update_player,
-        camera::update_camera,
-      ),
-    );
+    .add_systems(Update, (player::update_player, camera::update_camera));
 
   #[cfg(feature = "debug")]
   app

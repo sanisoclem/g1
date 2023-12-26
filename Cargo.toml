@@ -5,6 +5,10 @@ edition = "2021"
 
 [dependencies]
 bevy = { workspace = true }
+serde = { workspace = true }
+serde_ron = { workspace = true }
+thiserror = { workspace = true }
+
 bevy_egui = { version = "0.23", optional = true }
 custom_derive = { path = "crates/custom-derive", version = "0.1.0" }
 utils = { path = "crates/utils", version = "0.1.0" }
@@ -13,9 +17,8 @@ render = { path = "crates/render", version = "0.1.0" }
 input = { path = "crates/input", version = "0.1.0" }
 audio = { path = "crates/audio", version = "0.1.0" }
 assets = { path = "crates/assets", version = "0.1.0" }
-serde = { version = "1", features = ["derive", "rc"] }
-serde_ron = { version = "0.8", package = "ron" }
-thiserror = "1.0"
+animation = { path = "crates/animation", version = "0.1.0" }
+
 bevy-inspector-egui = { version = "0.21", optional = true }
 egui = { version = "0.23", optional = true }
 bevy-scene-hook = "9.0"
@@ -25,6 +28,9 @@ members = ["crates/*"]
 
 [workspace.dependencies]
 bevy = { version = "0.12" }
+serde = { version = "1", features = ["derive", "rc"] }
+serde_ron = { version = "0.8", package = "ron" }
+thiserror = "1.0"
 
 [features]
 hotreload = ["bevy/file_watcher"]

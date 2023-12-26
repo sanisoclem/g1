@@ -1,47 +1,35 @@
+use animation::{AnimatedBundle, AnimationControllerInput, Animator, BasicAnimationController};
 use bevy::prelude::*;
-use bevy_scene_hook::{HookedSceneBundle, SceneHook};
-
-use crate::animation::Animator;
 
 #[derive(Component)]
 pub struct Player;
 
-pub fn setup_player(
-  mut cmd: Commands,
-  asset_server: Res<AssetServer>,
-  mut materials: ResMut<Assets<StandardMaterial>>,
-  mut meshes: ResMut<Assets<Mesh>>,
-) {
-  let controller = asset_server.load("player.anim.ron");
+pub fn setup_player(mut cmd: Commands, asset_server: Res<AssetServer>) {
+  let controller = asset_server.load::<BasicAnimationController>("player.basic.anim.ron");
   cmd
     .spawn(SceneBundle {
       scene: asset_server.load("char.glb#Scene0"),
       ..default()
     })
-    .insert((
-      Name::new("Player"),
-      Player,
-      Animator {
+    .insert((Name::new("Player"), Player))
+    .insert(AnimatedBundle {
+      animator: Animator {
         controller: controller.clone(),
-        parameters: vec![("velocity", 0.0)].into_iter().collect(),
-        rig_path: EntityPath {
-          parts: vec![
-            Name::new("Unnamed"),
-            Name::new("Armature"),
-          ],
-        },
-        ..default()
+        rig_path: Some(EntityPath {
+          parts: vec![Name::new("Unnamed"), Name::new("Armature")],
+        }),
       },
-    ));
+      ..default()
+    });
 }
 
 pub fn update_player(
-  mut qry: Query<(&mut Transform, &mut Animator), With<Player>>,
+  mut qry: Query<(&mut Transform, &mut AnimationControllerInput), With<Player>>,
   mut gizmos: Gizmos,
   keyboard_input: Res<Input<KeyCode>>,
   time: Res<Time>,
 ) {
-  let Ok((mut trans, mut animator)) = qry.get_single_mut() else {
+  let Ok((mut trans, mut animator_input)) = qry.get_single_mut() else {
     return;
   };
 
@@ -70,11 +58,11 @@ pub fn update_player(
   gizmos.line(Vec3::ZERO, dir * 100., Color::PURPLE);
 
   if dir == Vec3::ZERO {
-    animator.set_parameter("velocity", 0.0);
+    animator_input.set_parameter("velocity", 0.0);
     return;
   }
 
-  animator.set_parameter("velocity", 1.0);
+  animator_input.set_parameter("velocity", 1.0);
   let inc = dir * 5. * time.delta_seconds();
   let plus1s = Vec3::new(
     trans.translation.x - inc.x,

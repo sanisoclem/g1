@@ -26,7 +26,7 @@ pub fn update_camera(
 }
 
 pub fn setup_camera(mut cmd: Commands, asset_server: Res<AssetServer>) {
-  let skybox_handle = asset_server.load("textures/Ryfjallet_cubemap_astc4x4.ktx2");
+  // let skybox_handle = asset_server.load("textures/Ryfjallet_cubemap_astc4x4.ktx2");
   cmd
     .spawn((
       Camera3dBundle {
@@ -36,15 +36,15 @@ pub fn setup_camera(mut cmd: Commands, asset_server: Res<AssetServer>) {
         },
         projection: OrthographicProjection {
           scale: 3.0,
-          scaling_mode: ScalingMode::FixedVertical(2.),
+          scaling_mode: ScalingMode::FixedVertical(8.),
           ..default()
         }
         .into(),
         tonemapping: Tonemapping::TonyMcMapface, // 2. Using a tonemapper that desaturates to white is recommended
-        transform: Transform::from_xyz(5.0, 5.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+        transform: Transform::from_xyz(15.0, 15.0, 15.0).looking_at(Vec3::ZERO, Vec3::Y),
         ..default()
       },
-      Skybox(skybox_handle.clone()),
+      // Skybox(skybox_handle.clone()),
       BloomSettings::default(),
       // FogSettings {
       //   color: Color::rgba(0.35, 0.48, 0.66, 1.0),

@@ -1,15 +1,18 @@
-BasicAnimationController(
+(
   nodes:  {
     ("idle"): (
       animation:"test_player.glb#Animation0",
+      repeat: true,
       speed: 1.0
     ),
     ("walk"): (
       animation:"test_player.glb#Animation2",
+      repeat: true,
       speed: 1.0
     ),
     ("run"): (
       animation:"test_player.glb#Animation1",
+      repeat: true,
       speed: 1.0
     ),
   },
@@ -17,7 +20,7 @@ BasicAnimationController(
     (
       from: Some(("idle")),
       to: ("run"),
-      transition_duration_seconds: 0.5,
+      transition_duration_seconds: 0.1,
       enabled: true,
       conditions: [
         GreaterThan("velocity", 0.5)
