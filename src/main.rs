@@ -1,14 +1,19 @@
-use animation::AnimationController;
-use assets::RonAssetApp;
+use animation::AnimationControllerPlugin;
 use bevy::{core_pipeline::experimental::taa::TemporalAntiAliasPlugin, prelude::*};
 
 #[cfg(feature = "debug")]
+use bevy::input::common_conditions::input_toggle_active;
+#[cfg(feature = "debug")]
 use bevy_egui::EguiPlugin;
+#[cfg(feature = "debug")]
+use bevy_inspector_egui::DefaultInspectorConfigPlugin;
 
+use bevy_scene_hook::HookPlugin;
 use simulation::SimulationPlugin;
 
-mod animation;
 mod camera;
+#[cfg(feature = "debug")]
+mod debug;
 mod player;
 mod scene;
 
@@ -18,8 +23,13 @@ fn main() {
     .insert_resource(ClearColor(Color::BLACK))
     // .insert_resource(AssetMetaCheck::Never) // might need this wasm hosting (itch.io returns 403s
     // and loader panics)
-    .add_plugins((DefaultPlugins, TemporalAntiAliasPlugin, SimulationPlugin))
-    .register_ron_asset::<AnimationController>()
+    .add_plugins((
+      DefaultPlugins,
+      TemporalAntiAliasPlugin,
+      SimulationPlugin,
+      HookPlugin,
+      AnimationControllerPlugin,
+    ))
     .add_systems(
       Startup,
       (
@@ -28,17 +38,19 @@ fn main() {
         camera::setup_camera,
       ),
     )
-    .add_systems(
-      Update,
-      (
-        animation::play_animations,
-        player::update_player,
-        camera::update_camera,
-      ),
-    );
+    .add_systems(Update, (player::update_player, camera::update_camera));
 
   #[cfg(feature = "debug")]
-  app.add_plugins((EguiPlugin, utils::fps::ScreenDiagsTextPlugin));
+  app
+    .add_plugins((
+      EguiPlugin,
+      DefaultInspectorConfigPlugin,
+      utils::fps::ScreenDiagsTextPlugin,
+    ))
+    .add_systems(
+      Update,
+      debug::inspector_ui.run_if(input_toggle_active(true, KeyCode::Escape)),
+    );
 
   app.run();
 }

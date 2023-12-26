@@ -1,0 +1,10 @@
+[package]
+name = "animation"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bevy = { workspace = true }
+serde = { workspace = true }
+utils = { path = "../utils", version = "0.1.0" }
+assets = { path = "../assets", version = "0.1.0" }
