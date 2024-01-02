@@ -73,7 +73,6 @@ where
       reader.read_to_end(&mut bytes).await?;
       let mut asset = from_bytes::<T>(&bytes)?;
       asset.construct_nested_assets(ctx);
-
       Ok(asset)
     })
   }

@@ -3416,6 +3416,7 @@ name = "simulation"
 version = "0.1.0"
 dependencies = [
  "bevy",
+ "futures-lite 2.1.0",
  "utils",
 ]
 
