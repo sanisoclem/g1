@@ -11,7 +11,7 @@ pub struct WorldBlueprint<T: WorldLayout> {
 
 impl<T: WorldLayout> RonAsset for WorldBlueprint<T> {
   type NestedAssets = ();
-  fn construct_nested_assets<'a>(&mut self, load_context: &'a mut bevy::asset::LoadContext) {
+  fn construct_nested_assets<'a>(&mut self, _load_context: &'a mut bevy::asset::LoadContext) {
     ()
   }
   fn extensions() -> &'static [&'static str] {

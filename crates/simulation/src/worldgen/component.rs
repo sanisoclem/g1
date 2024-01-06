@@ -1,7 +1,4 @@
-use super::{
-  asset::WorldChunkLayerAsset,
-  layout::{ChunkId, WorldLayout},
-};
+use super::{asset::WorldChunkLayerAsset, layout::WorldLayout};
 use bevy::{prelude::*, tasks::Task};
 use std::marker::PhantomData;
 

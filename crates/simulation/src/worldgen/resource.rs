@@ -80,9 +80,9 @@ where
     }
   }
 
-  pub fn mark_chunk_as_unloaded(&mut self, chunk_id: &T::ChunkId) {
-    unimplemented!()
-  }
+  // pub fn mark_chunk_as_unloaded(&mut self, chunk_id: &T::ChunkId) {
+  //   unimplemented!()
+  // }
 }
 
 #[derive(Resource)]

@@ -4,7 +4,10 @@ use bevy::prelude::*;
 use self::{
   asset::{WorldBlueprint, WorldChunkLayerAsset},
   layout::{DefaultLayout, WorldLayout},
-  system::{generate_chunk_layers, handle_asset_events, handle_world_commands},
+  system::{
+    generate_chunk_layers, handle_asset_events, handle_world_commands,
+    poll_chunk_layer_generation_tasks, spawn_chunk, spawn_chunk_layers,
+  },
 };
 
 mod asset;
@@ -26,14 +29,25 @@ impl WorldGenApp for App {
       .register_ron_asset::<WorldBlueprint<DefaultLayout>>()
       .add_systems(
         Update,
-        (handle_world_commands::<T>, handle_asset_events::<T>),
+        (
+          handle_world_commands::<T>,
+          handle_asset_events::<T>,
+          spawn_chunk::<T>,
+        ),
       )
   }
   fn register_chunk_layer<A, T: WorldLayout>(&mut self) -> &mut Self
   where
     A: WorldChunkLayerAsset<T> + Send + Sync + 'static,
   {
-    self.add_systems(Update, (generate_chunk_layers::<A, T>))
+    self.add_systems(
+      Update,
+      (
+        generate_chunk_layers::<A, T>,
+        poll_chunk_layer_generation_tasks::<A, T>,
+        spawn_chunk_layers::<A, T>,
+      ),
+    )
   }
 }
 

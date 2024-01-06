@@ -17,10 +17,8 @@ use super::{
 
 pub fn handle_world_commands<T: WorldLayout>(
   mut cmds: EventReader<WorldCommand>,
-  mut cmd: Commands,
   asset_server: Res<AssetServer>,
   mut world_mgr: ResMut<WorldManager<T>>,
-  blueprints: Res<Assets<WorldBlueprint<T>>>,
 ) where
   T::ChunkId: Send + Sync,
 {
@@ -48,7 +46,6 @@ pub fn handle_asset_events<T: WorldLayout>(
   mut cmds: Commands,
   mut events: EventReader<AssetEvent<WorldBlueprint<T>>>,
   mut world_mgr: ResMut<WorldManager<T>>,
-  bps: Res<Assets<WorldBlueprint<T>>>,
 ) {
   for event in events.read() {
     match event {
@@ -146,11 +143,10 @@ pub fn spawn_chunk<L: WorldLayout>(
   mut cmd: Commands,
   q_marker: Query<&Transform, With<WorldLoadMarker>>,
   mut world_manager: ResMut<WorldManager<L>>,
-  mut cache: ResMut<WorldGenerationCache<L::ChunkId>>,
   settings: Res<WorldSettings>,
   bps: Res<Assets<WorldBlueprint<L>>>,
 ) {
-  let Some((bp_handle, current_seed)) = world_manager.current.as_ref() else {
+  let Some((bp_handle, _current_seed)) = world_manager.current.as_ref() else {
     return;
   };
   let Some(bp) = bps.get(bp_handle) else {
@@ -185,8 +181,8 @@ pub fn spawn_chunk<L: WorldLayout>(
 
 pub fn spawn_chunk_layers<T: WorldChunkLayerAsset<L>, L: WorldLayout>(
   mut cmd: Commands,
-  asset_server: AssetServer,
-  mut cache: ResMut<WorldGenerationCache<L::ChunkId>>,
+  asset_server: Res<AssetServer>,
+  cache: Res<WorldGenerationCache<L::ChunkId>>,
   qry: Query<(Entity, &WorldChunk<L::ChunkId>), Added<WorldChunk<L::ChunkId>>>,
 ) where
   <L as WorldLayout>::ChunkId: Clone + PartialEq + Eq + std::hash::Hash,
