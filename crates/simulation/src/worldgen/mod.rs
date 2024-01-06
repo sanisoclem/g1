@@ -1,14 +1,14 @@
 use assets::RonAssetApp;
 use bevy::prelude::*;
 
-use self::{
-  asset::{WorldBlueprint, WorldChunkLayerAsset},
-  layout::{DefaultLayout, WorldLayout},
-  system::{
-    generate_chunk_layers, handle_asset_events, handle_world_commands,
-    poll_chunk_layer_generation_tasks, spawn_chunk, spawn_chunk_layers,
-  },
+use self::system::{
+  generate_chunk_layers, handle_asset_events, handle_world_commands,
+  poll_chunk_layer_generation_tasks, spawn_chunk, spawn_chunk_layers,
 };
+
+pub use asset::{WorldBlueprint, WorldChunkLayerAsset};
+pub use layout::{DefaultLayout, WorldLayout, ChunkId};
+pub use component::*;
 
 mod asset;
 mod component;
@@ -17,14 +17,14 @@ mod resource;
 mod system;
 
 pub trait WorldGenApp {
-  fn add_layout<T: WorldLayout>(&mut self) -> &mut Self;
+  fn add_worldgen<T: WorldLayout>(&mut self) -> &mut Self;
   fn register_chunk_layer<A, T: WorldLayout>(&mut self) -> &mut Self
   where
     A: WorldChunkLayerAsset<T> + Send + Sync + 'static;
 }
 
 impl WorldGenApp for App {
-  fn add_layout<T: WorldLayout>(&mut self) -> &mut Self {
+  fn add_worldgen<T: WorldLayout>(&mut self) -> &mut Self {
     self
       .register_ron_asset::<WorldBlueprint<DefaultLayout>>()
       .add_systems(
@@ -84,3 +84,4 @@ pub struct RoomId(u16);
 /// The seed data used to generate the world
 #[derive(PartialEq, Hash, Eq, Clone, Default)]
 pub struct WorldSeed([u8; 16]);
+
