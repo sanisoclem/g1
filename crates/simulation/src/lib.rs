@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 
 pub mod movement;
+pub mod worldgen;
+pub mod terrain;
 
 pub struct SimulationPlugin;
 

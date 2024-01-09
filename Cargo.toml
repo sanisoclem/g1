@@ -31,6 +31,7 @@ bevy = { version = "0.12" }
 serde = { version = "1", features = ["derive", "rc"] }
 serde_ron = { version = "0.8", package = "ron" }
 thiserror = "1.0"
+futures-lite = "2.1"
 
 [features]
 hotreload = ["bevy/file_watcher"]

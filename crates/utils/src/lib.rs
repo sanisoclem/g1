@@ -17,4 +17,14 @@ pub fn lerp<T: Copy + Mul<f32, Output = T> + Sub<T, Output = T> + Add<T, Output 
   from + ((to - from) * f)
 }
 
+pub trait Vec2Conversions {
+  type V3D;
+  fn into_3d(self, y: f32) -> Self::V3D;
+}
 
+impl Vec2Conversions for Vec2 {
+  type V3D = Vec3;
+  fn into_3d(self, y: f32) -> Self::V3D {
+    Vec3::new(self.x, y, self.y)
+  }
+}
