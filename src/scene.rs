@@ -1,18 +1,16 @@
 use bevy::prelude::*;
+use simulation::worldgen::{WorldCommand, WorldSeed};
 
 pub fn setup_test_scene(
   mut cmd: Commands,
+  mut worldgen_cmd: EventWriter<WorldCommand>,
   mut materials: ResMut<Assets<StandardMaterial>>,
   mut meshes: ResMut<Assets<Mesh>>,
 ) {
-  // plane
-  cmd.spawn(PbrBundle {
-    mesh: meshes.add(shape::Plane::from_size(500.0).into()),
-    material: materials.add(Color::rgb(0.3, 0.5, 0.3).into()),
-    ..default()
-  })
-  .insert(Name::new("Floor"));
-
+  worldgen_cmd.send(WorldCommand::CreateWorld {
+    world_blueprint: "default.world.ron".to_owned(),
+    seed: WorldSeed::default(),
+  });
   cmd.spawn(PointLightBundle {
     point_light: PointLight {
       intensity: 9000.0,

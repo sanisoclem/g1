@@ -9,7 +9,7 @@ use bevy_egui::EguiPlugin;
 use bevy_inspector_egui::DefaultInspectorConfigPlugin;
 
 use bevy_scene_hook::HookPlugin;
-use simulation::SimulationPlugin;
+use simulation::{worldgen::WorldGenApp, SimulationPlugin};
 
 mod camera;
 #[cfg(feature = "debug")]
@@ -38,7 +38,8 @@ fn main() {
         camera::setup_camera,
       ),
     )
-    .add_systems(Update, (player::update_player, camera::update_camera));
+    .add_systems(Update, (player::update_player, camera::update_camera))
+    .add_default_world_gen();
 
   #[cfg(feature = "debug")]
   app

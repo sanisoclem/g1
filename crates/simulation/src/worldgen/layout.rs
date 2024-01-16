@@ -40,7 +40,7 @@ pub trait WorldLayout: TypePath + Send + Sync {
   fn get_by_lod(&self, point: &Vec3, min: u16, max: u16) -> Vec<Self::ChunkId>;
 }
 
-#[derive(TypePath, serde::Deserialize)]
+#[derive(Reflect, serde::Deserialize)]
 pub struct DefaultLayout {
   height: u16,
   radius: u16,

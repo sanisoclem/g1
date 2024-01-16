@@ -1,5 +1,6 @@
 use animation::{AnimatedBundle, AnimationControllerInput, Animator, BasicAnimationController};
 use bevy::prelude::*;
+use simulation::worldgen::WorldLoadMarker;
 
 #[derive(Component)]
 pub struct Player;
@@ -20,7 +21,8 @@ pub fn setup_player(mut cmd: Commands, asset_server: Res<AssetServer>) {
         }),
       },
       ..default()
-    });
+    })
+    .insert(WorldLoadMarker);
 }
 
 pub fn update_player(

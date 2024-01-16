@@ -1,22 +1,28 @@
 use assets::RonAssetApp;
 use bevy::prelude::*;
 
-use self::system::{
-  generate_chunk_layers, handle_asset_events, handle_world_commands,
-  poll_chunk_layer_generation_tasks, spawn_chunk, spawn_chunk_layers,
+use self::{
+  resource::{WorldGenerationCache, WorldManager, WorldSettings},
+  system::{
+    generate_chunk_layers, handle_asset_events, handle_world_commands,
+    poll_chunk_layer_generation_tasks, spawn_chunk, spawn_chunk_layers,
+  },
+  terrain::{TerrainChunk, spawn_mesh},
 };
 
 pub use asset::{WorldBlueprint, WorldChunkLayerAsset};
-pub use layout::{DefaultLayout, WorldLayout, ChunkId};
 pub use component::*;
+pub use layout::{ChunkId, DefaultLayout, WorldLayout};
 
 mod asset;
 mod component;
 mod layout;
 mod resource;
 mod system;
+mod terrain;
 
 pub trait WorldGenApp {
+  fn add_default_world_gen(&mut self) -> &mut Self;
   fn add_worldgen<T: WorldLayout>(&mut self) -> &mut Self;
   fn register_chunk_layer<A, T: WorldLayout>(&mut self) -> &mut Self
   where
@@ -24,8 +30,21 @@ pub trait WorldGenApp {
 }
 
 impl WorldGenApp for App {
+  fn add_default_world_gen(&mut self) -> &mut Self {
+    self
+      .add_worldgen::<DefaultLayout>()
+      .register_chunk_layer::<terrain::TerrainChunk, DefaultLayout>()
+      .register_ron_asset::<TerrainChunk>()
+      // .register_type::<WorldChunkLayer<TerrainChunk,DefaultLayout>>()
+      .add_systems(Update, spawn_mesh)
+  }
   fn add_worldgen<T: WorldLayout>(&mut self) -> &mut Self {
     self
+      .init_resource::<WorldSettings>()
+      .init_resource::<WorldManager<T>>()
+      .init_resource::<WorldGenerationCache<T::ChunkId>>()
+      .add_event::<WorldCommand>()
+      // .register_type::<WorldChunk<T>>()
       .register_ron_asset::<WorldBlueprint<DefaultLayout>>()
       .add_systems(
         Update,
@@ -84,4 +103,3 @@ pub struct RoomId(u16);
 /// The seed data used to generate the world
 #[derive(PartialEq, Hash, Eq, Clone, Default)]
 pub struct WorldSeed([u8; 16]);
-

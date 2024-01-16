@@ -1,5 +1,5 @@
 use super::{asset::WorldBlueprint, layout::WorldLayout, WorldSeed};
-use bevy::{prelude::*, utils::HashMap};
+use bevy::{prelude::*, utils::hashbrown::HashMap};
 use std::any::TypeId;
 
 /// Identifies a WorkdChunkLayer.
@@ -32,7 +32,7 @@ where
 }
 
 /// Stores the current runtime state of the world
-#[derive(Resource, Default)]
+#[derive(Resource)]
 pub struct WorldManager<T: WorldLayout> {
   pub current: Option<(Handle<WorldBlueprint<T>>, WorldSeed)>,
   pub origin: T::ChunkId,
@@ -42,6 +42,20 @@ pub struct WorldManager<T: WorldLayout> {
   /// a chunk since all entities spawned by each layer will be a child
   /// of the chunk entity
   pub loaded_chunks: HashMap<T::ChunkId, Entity>,
+}
+
+impl<T> Default for WorldManager<T>
+where
+  T: WorldLayout,
+{
+  fn default() -> Self {
+    Self {
+      current: None,
+      origin: T::ChunkId::default(),
+      pending_generation: HashMap::new(),
+      loaded_chunks: HashMap::new(),
+    }
+  }
 }
 
 impl<T> WorldManager<T>
@@ -85,7 +99,7 @@ where
   // }
 }
 
-#[derive(Resource)]
+#[derive(Resource, Default)]
 pub struct WorldSettings {
   pub generate_lod_threshold: u16,
   pub visibility_lod_threshold: u16,

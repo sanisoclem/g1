@@ -2,7 +2,7 @@ use super::{asset::WorldChunkLayerAsset, layout::WorldLayout};
 use bevy::{prelude::*, tasks::Task};
 use std::marker::PhantomData;
 
-#[derive(Component)]
+#[derive(Component, Reflect)]
 pub struct WorldChunkGenerationTask<T: Send + Sync, TChunk>(
   pub(crate) Task<(TChunk, String, PhantomData<T>)>,
 );
@@ -29,13 +29,13 @@ pub struct WorldChunkBundle<T: 'static + Send + Sync + Default> {
 #[derive(Component)]
 pub struct WorldLoadMarker;
 
-#[derive(Component, Default)]
+#[derive(Component, Default, Reflect)]
 pub struct WorldChunk<T: Default> {
   pub chunk_id: T,
   pub lod: u16,
 }
 
-#[derive(Component, Default)]
+#[derive(Component, Default, Reflect)]
 pub struct WorldChunkLayer<T: WorldChunkLayerAsset<A>, A: WorldLayout> {
   pub data: Handle<T>,
   pub phatom: PhantomData<A>,
