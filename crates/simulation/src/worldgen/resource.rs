@@ -5,7 +5,7 @@ use std::any::TypeId;
 /// Identifies a WorkdChunkLayer.
 ///
 /// The [`TypeId`] is from the type that implements [`WorldChunkLayerAsset`].
-#[derive(PartialEq, Hash, Eq, Clone)]
+#[derive(PartialEq, Hash, Eq, Clone, Debug)]
 pub struct ChunkLayerId<T>(pub(crate) T, pub(crate) TypeId);
 
 /// Stores output of world generation. This data is designed to be

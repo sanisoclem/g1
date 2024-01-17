@@ -5,8 +5,14 @@ use utils::Vec2Conversions;
 ///
 /// The ChunkId is composed of the x and y coordinates of the chunk,
 /// with the central chunk 0,0 at the center.
-#[derive(PartialEq, Hash, Eq, Clone, Default)]
+#[derive(PartialEq, Hash, Eq, Clone, Default, Debug)]
 pub struct ChunkId(i16, i16);
+
+impl std::fmt::Display for ChunkId {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    write!(f, "{:x?}{:x?}", self.0, self.1)
+  }
+}
 
 impl Into<Vec2> for ChunkId {
   fn into(self) -> Vec2 {
@@ -30,7 +36,7 @@ impl From<&Vec2> for ChunkId {
 }
 
 pub trait WorldLayout: TypePath + Send + Sync {
-  type ChunkId: Default + PartialEq + std::hash::Hash + Eq + Clone + Sync + Send;
+  type ChunkId: Default + PartialEq + std::hash::Hash + Eq + Clone + Sync + Send + std::fmt::Debug;
   type ChunkSpace: Clone + Sync + Send;
 
   fn to_chunk_space(&self, world_space: &Vec3, chunk: Option<&Self::ChunkId>) -> Self::ChunkSpace;

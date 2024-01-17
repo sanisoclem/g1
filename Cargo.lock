@@ -3418,7 +3418,9 @@ dependencies = [
  "assets",
  "bevy",
  "futures-lite 2.1.0",
+ "ron",
  "serde",
+ "thiserror",
  "utils",
 ]
 

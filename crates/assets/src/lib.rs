@@ -35,11 +35,15 @@ pub enum RonAssetLoaderError {
   RonSpannedError(#[from] serde_ron::error::SpannedError),
 }
 
-pub trait RonAsset {
+pub trait RonAsset: Asset {
   type NestedAssets;
 
   fn construct_nested_assets<'a>(&mut self, load_context: &'a mut LoadContext);
   fn extensions() -> &'static [&'static str];
+}
+
+pub trait CacheAsset: RonAsset {
+  
 }
 
 pub struct RonAssetLoader<T> {

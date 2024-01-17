@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use assets::RonAsset;
 use bevy::{
   asset::LoadContext,
@@ -11,9 +13,11 @@ use bevy::{
     },
   },
 };
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::worldgen::{ChunkId, DefaultLayout, WorldChunkLayer, WorldChunkLayerAsset};
+
+use super::asset::WorldGenerationError;
 
 const ATTRIBUTE_BLEND_COLOR: MeshVertexAttribute =
   MeshVertexAttribute::new("BlendColor", 988540917, VertexFormat::Float32x4);
@@ -47,11 +51,11 @@ impl Material for TerrainMaterial {
   }
 }
 
-#[derive(Deserialize, Asset, Reflect)]
+#[derive(Deserialize, Asset, Reflect, Serialize)]
 pub struct TerrainChunk {
   mesh: String,
   material: String,
-  #[serde(skip_deserializing)]
+  #[serde(skip_deserializing, skip_serializing)]
   assets: Option<TerrainChunkNestedAssets>,
 }
 
@@ -74,18 +78,45 @@ impl RonAsset for TerrainChunk {
   }
 }
 
-pub struct TerrainChunkData {
-  mesh: Mesh, // TODO: lod meshes
-  material: TerrainMaterial,
-}
-
 impl WorldChunkLayerAsset<DefaultLayout> for TerrainChunk {
-  type PersistAs = TerrainChunkData;
-  fn generate(seed: &crate::worldgen::WorldSeed, chunk_id: &ChunkId) -> Self::PersistAs {
-    TerrainChunkData {
-      material: TerrainMaterial { color: Color::RED },
-      mesh: create_mesh(),
-    }
+  fn generate(
+    seed: &crate::worldgen::WorldSeed,
+    chunk_id: &ChunkId,
+  ) -> Result<String, WorldGenerationError> {
+    let mesh = create_mesh();
+    let mat = TerrainMaterial { color: Color::RED };
+    // TODO: find a serialization format for terrain data (mesh + mat)
+    // that can easily be loaded as a mesh + mat
+    // TODO: abstract IO code, this has nothing to do with terrain
+    let layer_dir = std::env::current_dir()?
+      .join("assets")
+      .join("cache")
+      .join(seed.to_string())
+      .join("terrain")
+      .join(chunk_id.to_string());
+    let relative_dir = PathBuf::from("cache")
+      .join(seed.to_string())
+      .join("terrain")
+      .join(chunk_id.to_string());
+    let mesh_file = relative_dir.join("terrain.mesh");
+    let mat_file = relative_dir.join("terrain.mat");
+    let meta_file = layer_dir.join("layer.terrain.chunk.ron");
+    let meta = Self {
+      mesh: mesh_file.to_str().unwrap().to_owned(),
+      material: mat_file.to_str().unwrap().to_owned(),
+      assets: None,
+    };
+    info!("Writing {meta_file:?}");
+    std::fs::create_dir_all(&layer_dir)?;
+    std::fs::write(&meta_file, serde_ron::to_string(&meta)?)?;
+
+    Ok(
+      relative_dir
+        .join("layer.terrain.chunk.ron")
+        .to_str()
+        .unwrap()
+        .to_owned(),
+    )
   }
 }
 

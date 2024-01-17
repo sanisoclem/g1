@@ -42,6 +42,8 @@ pub fn handle_world_commands<T: WorldLayout>(
   }
 }
 
+// TODO: create a system to initialize cache from filesystem
+
 pub fn handle_asset_events<T: WorldLayout>(
   mut cmds: Commands,
   mut events: EventReader<AssetEvent<WorldBlueprint<T>>>,
@@ -50,6 +52,7 @@ pub fn handle_asset_events<T: WorldLayout>(
   for event in events.read() {
     match event {
       AssetEvent::Modified { id } => {
+        info!("World asset changed, reloading world");
         let Some((handle, _)) = world_mgr.current.as_ref() else {
           return;
         };
@@ -111,10 +114,9 @@ pub fn generate_chunk_layers<T: Send + Sync + WorldChunkLayerAsset<A> + 'static,
       let seedc = seed.clone();
 
       let task = thread_pool.spawn(async move {
-        let _data = T::generate(&seedc, &chunk_id);
-        // TODO: persist to disk
-        let file = "TODO";
-        (chunk_id, file.to_owned(), PhantomData)
+        let meta_file = T::generate(&seedc, &chunk_id).expect("layer generation should work");
+        
+        (chunk_id, meta_file, PhantomData)
       });
 
       cmd
@@ -163,6 +165,7 @@ pub fn spawn_chunk<L: WorldLayout>(
     to_spawn.retain(|c: &<L as WorldLayout>::ChunkId| !loaded.contains(c));
 
     for chunk_id in to_spawn.into_iter() {
+      info!("Spawning chunk {chunk_id:?}");
       let entity = cmd
         .spawn(WorldChunkBundle {
           chunk: WorldChunk {
@@ -194,6 +197,7 @@ pub fn spawn_chunk_layers<T: WorldChunkLayerAsset<L>, L: WorldLayout>(
     };
 
     cmd.entity(entity).with_children(|b| {
+      info!("Spawning chunk layer {:?}: {:?}", key, generated_asset);
       b.spawn(WorldChunkLayer {
         data: asset_server.load::<T>(generated_asset),
         phatom: PhantomData,

@@ -101,5 +101,11 @@ pub enum WorldState {
 pub struct RoomId(u16);
 
 /// The seed data used to generate the world
-#[derive(PartialEq, Hash, Eq, Clone, Default)]
+#[derive(PartialEq, Hash, Eq, Clone, Default,Debug)]
 pub struct WorldSeed([u8; 16]);
+
+impl std::fmt::Display for WorldSeed {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    write!(f, "{}", self.0.iter().map(|b| format!("{:02x}", b)).collect::<Vec<_>>().join(""))
+  }
+}
